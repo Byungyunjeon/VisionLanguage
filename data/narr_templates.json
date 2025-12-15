@@ -1,0 +1,243 @@
+{
+  "meta": {
+    "version": "step1-narration-v2"
+  },
+  "raw": {
+    "meta": {
+      "version": "step1-v1",
+      "language": "en",
+      "notes": [
+        "Templates are caregiver-oriented, non-diagnostic, and uncertainty-aware.",
+        "Texts are grounded on inferred patterns + supplement features (EWI, dwell, crossings, speech activity, masking score).",
+        "Use as a prototype narration library for Step 1; later can be expanded or used for LoRA fine-tuning of a small LM."
+      ]
+    },
+    "global": {
+      "style_rules": [
+        "Be gentle and practical.",
+        "Do not diagnose or label the child.",
+        "Explain what the system sees, why it matters, what to try now, and what may happen next.",
+        "If confidence is low, say so and avoid strong recommendations."
+      ],
+      "slots": {
+        "pattern": "{pattern}",
+        "confidence": "{confidence:.2f}",
+        "ewi_level": "{ewi_level}",
+        "distress_dwell_sec": "{distress_dwell_sec}",
+        "crossings": "{crossings}",
+        "speech_activity": "{speech_activity}",
+        "masking_possible": "{masking_possible}",
+        "top2_pattern": "{top2_pattern}",
+        "top2_weight": "{top2_weight:.2f}"
+      }
+    },
+    "uncertainty": {
+      "low_confidence": {
+        "when": "confidence < 0.35",
+        "messages": [
+          "The signals are mixed, so I am not sure what is happening right now. I may be missing important context.",
+          "If you know what changed in the environment (noise, light, schedule, a small rule breaking), your judgement is more reliable than this tool.",
+          "If distress increases, try a calm pause and reduce stimulation. If things improve, continue with a steady routine."
+        ]
+      },
+      "mixed_cues_masking": {
+        "when": "masking_possible == true AND confidence < 0.5",
+        "messages": [
+          "Your child may look calm, but some signals suggest tension underneath. This can happen when stress is hidden or 'masked.'",
+          "A gentle check-in can help: stay close, speak softly, and offer one simple choice. Avoid sudden demands while the tension is high."
+        ]
+      }
+    },
+    "supplements": {
+      "early_warning": {
+        "high": [
+          "Stress seems to be building up. Small supports now can prevent a bigger reaction later.",
+          "If possible, lower the stimulation (reduce noise, bright light, or fast talking) and give a short break."
+        ],
+        "medium": [
+          "There are mild signs of rising stress. Keeping things predictable may help.",
+          "If you notice repeated small worries, consider slowing down and offering clearer next steps."
+        ],
+        "low": [
+          "Stress signals look low right now. A steady routine is usually enough.",
+          "If a worry appears again, support early rather than waiting for escalation."
+        ]
+      },
+      "dwell_crossings": {
+        "messages": [
+          "He stayed in a tense state for about {distress_dwell_sec} seconds, with {crossings} escalation crossings. This matters because repeated crossings can lead to exhaustion or a sudden meltdown later."
+        ]
+      },
+      "speech_activity": {
+        "high": [
+          "There is active speech/voicing. This often means he is trying to communicate needs, even if the words are short or repetitive.",
+          "Try reflecting back in simple language: 'You want to start together' or 'You want it fixed,' and then offer a clear next step."
+        ],
+        "medium": [
+          "There is some voicing. He may be testing whether you understand what he wants.",
+          "Short, calm responses and one clear option can reduce frustration."
+        ],
+        "low": [
+          "There is little speech/voicing. He may be overwhelmed, tired, or shutting down.",
+          "Give space, reduce stimulation, and avoid pushing for explanations in the moment."
+        ]
+      }
+    },
+    "patterns": {
+      "share_control": {
+        "description": "Need for shared timing, joint start, or matched control. Distress rises when sequence/timing breaks.",
+        "templates": [
+          [
+            "Main pattern: share-control (confidence {confidence:.2f}). Your child may want to begin together or match timing with you.",
+            "When the sequence changes unexpectedly, distress can rise quickly because the shared plan feels broken.",
+            "{early_warning_block}",
+            "{speech_activity_block}",
+            "What to try now: reset the start together. Use a simple phrase like 'together, one-two-three' and begin at the same time.",
+            "What may happen next: if the timing breaks again, distress may increase; if you restart together, he often returns to calm faster."
+          ],
+          [
+            "Main pattern: share-control (confidence {confidence:.2f}). This looks like a 'start together' situation.",
+            "Even small differences (you wash first, you open the toy first) can feel like losing shared control.",
+            "{early_warning_block}",
+            "What to try now: pause, acknowledge his request, and offer a synchronized restart. Keep your voice slow and steady.",
+            "If the support works, the worry should drop within a short window. If not, he may move toward crying or shutting down."
+          ]
+        ]
+      },
+      "repair_integrity": {
+        "description": "Integrity-violation response: something feels wrong/broken and the child needs it restored to feel safe.",
+        "templates": [
+          [
+            "Main pattern: repair-integrity (confidence {confidence:.2f}). Something may feel 'wrong' or not complete to your child.",
+            "This is not just a preference. For some children, a small break (a torn cover, a missing piece) can feel like a safety problem.",
+            "{early_warning_block}",
+            "{speech_activity_block}",
+            "What to try now: if safe, repair the object or restore the rule. If you cannot, offer a substitute repair: cover it, put it away, or create a clear 'finished' boundary.",
+            "What may happen next: if the integrity issue stays unresolved, distress may persist; if you can repair or close the loop, calm often returns."
+          ],
+          [
+            "Main pattern: repair-integrity (confidence {confidence:.2f}). He may be asking for the world to feel 'whole' again.",
+            "You might see repeated requests, checking behavior, or insistence that you undo a change.",
+            "{early_warning_block}",
+            "What to try now: validate first ('It feels wrong'). Then give one simple plan: 'We can't fix this, but we can put it away safely.'",
+            "If the plan is clear and consistent, the reaction often softens. If plans change repeatedly, distress can rise."
+          ]
+        ]
+      },
+      "delayed_meltdown": {
+        "description": "Stress accumulates quietly (often behind calm/neutral expression) then breaks into crying or shutdown.",
+        "templates": [
+          [
+            "Main pattern: delayed-meltdown (confidence {confidence:.2f}). Your child may look calm at first, but stress can build quietly inside.",
+            "This matters because the visible reaction can appear suddenly, even if the earlier cues were small.",
+            "{early_warning_block}",
+            "{dwell_crossings_block}",
+            "What to try now: reduce stimulation and lower demands. Offer a calm break and a simple choice (water, hug, quiet corner).",
+            "What may happen next: if stress continues, crying or shutdown may follow. If support happens early, he may return to calm without a big episode."
+          ],
+          [
+            "Main pattern: delayed-meltdown (confidence {confidence:.2f}). The system sees a build-up pattern rather than a single sudden trigger.",
+            "Sometimes children hold it together until one more small change pushes them over the edge.",
+            "{early_warning_block}",
+            "What to try now: slow down transitions, avoid extra instructions, and keep the environment predictable for a few minutes.",
+            "If you see repeated small spikes, treat them as early warnings. Preventing escalation is usually easier than stopping a meltdown mid-way."
+          ]
+        ]
+      },
+      "mask_snap": {
+        "description": "Positive/neutral-looking expression followed by abrupt distress; often described as masking then snapping.",
+        "templates": [
+          [
+            "Main pattern: mask-snap (confidence {confidence:.2f}). Your child may appear okay, then suddenly move into distress.",
+            "This can happen when stress is hidden for a while and then 'snaps' once capacity is exceeded.",
+            "{early_warning_block}",
+            "{speech_activity_block}",
+            "What to try now: treat the early tension as real even if the face looks calm. Offer a short break and reduce stimulation.",
+            "What may happen next: if demands continue, distress may escalate quickly. If you pause and support early, the snap may be avoided."
+          ],
+          [
+            "Main pattern: mask-snap (confidence {confidence:.2f}). The signals suggest a fast switch from controlled behavior to crying or shutdown.",
+            "This is not manipulation. It often reflects a narrow coping window.",
+            "{early_warning_block}",
+            "What to try now: use fewer words, move slowly, and provide one clear safe option (quiet space, predictable routine).",
+            "If the coping window is exceeded again soon, another snap can happen. If you protect the window, recovery is faster."
+          ]
+        ]
+      },
+      "frozen_distress": {
+        "description": "Low expression, stillness, quiet voice; can indicate shutdown/overload rather than calm.",
+        "templates": [
+          [
+            "Main pattern: frozen-distress (confidence {confidence:.2f}). Your child is very still and shows little expression.",
+            "This may not mean calm. It can be a shutdown response to overload or fear.",
+            "{early_warning_block}",
+            "{speech_activity_block}",
+            "What to try now: give space and reduce stimulation. Avoid rapid questions. Stay nearby so he feels safe without pressure.",
+            "What may happen next: after shutdown, some children cry later or become exhausted. Gentle recovery is often better than pushing to 'talk it out.'"
+          ],
+          [
+            "Main pattern: frozen-distress (confidence {confidence:.2f}). The system sees low outward expression with internal tension cues.",
+            "Think of it as 'freeze' rather than 'fine.'",
+            "What to try now: lower demands, keep routines simple, and allow quiet time. Offer help with one short sentence at a time.",
+            "If stimulation increases, the freeze can turn into crying. If the environment stays calm, he may slowly return to normal activity."
+          ]
+        ]
+      },
+      "sensory_overload": {
+        "description": "Escalation driven by sensory load (noise/light/touch/crowd); often leads to crying then shutdown.",
+        "templates": [
+          [
+            "Main pattern: sensory-overload (confidence {confidence:.2f}). The system suggests the environment may be overwhelming.",
+            "Noise, light, touch, or fast social input can push a child from calm into fear and crying quickly.",
+            "{early_warning_block}",
+            "{dwell_crossings_block}",
+            "What to try now: reduce sensory input (quiet, dim light, fewer people). Use a calm voice and give a clear escape option.",
+            "What may happen next: if overload continues, crying or shutdown may follow. If the environment is softened, recovery is more likely."
+          ],
+          [
+            "Main pattern: sensory-overload (confidence {confidence:.2f}). This looks less like 'bad behavior' and more like too much input.",
+            "{early_warning_block}",
+            "What to try now: move to a quieter place, reduce talking, and allow self-soothing (cover ears, hold an object, rocking).",
+            "If the load drops, worry should decrease. If not, distress may keep rising."
+          ]
+        ]
+      },
+      "ocd_loop": {
+        "description": "Persistent worry-like state with low escape; repeated checking or insistence may appear.",
+        "templates": [
+          [
+            "Main pattern: ocd-loop (confidence {confidence:.2f}). Your child may be stuck in a worry loop for a long time.",
+            "This can look like repeated checking, repeated questions, or difficulty moving on even when you reassure him.",
+            "{early_warning_block}",
+            "{speech_activity_block}",
+            "What to try now: give one clear reassurance and one clear plan. Too many different explanations can make the loop stronger.",
+            "What may happen next: if the loop is interrupted gently with a stable routine, tension can reduce. If the routine keeps changing, worry may persist."
+          ],
+          [
+            "Main pattern: ocd-loop (confidence {confidence:.2f}). The system sees long, steady worry without a clear drop back to calm.",
+            "This suggests he may need closure or a predictable 'end' signal.",
+            "What to try now: use a consistent closing phrase ('All done, safe now') and a consistent action (put away, checklist, timer).",
+            "If closure is repeated consistently, the loop often weakens over days. If closure changes each time, the loop can stay strong."
+          ]
+        ]
+      }
+    },
+    "sequence_only_examples": {
+      "calm_worry_calm": [
+        "He became briefly worried but returned to calm on his own. This suggests a small stress that he was able to handle.",
+        "No action is needed now, but staying nearby and keeping the environment steady may help.",
+        "If similar worries happen more often or last longer, stress may build up and lead to distress later."
+      ],
+      "calm_worry_worry": [
+        "He moved from calm into worry and stayed there. This may mean stress is slowly building.",
+        "Reducing noise or giving one clear next step may help prevent escalation.",
+        "If the worry continues without support, crying or shutdown may follow."
+      ],
+      "worry_cry_blank": [
+        "Worry rose into crying, then he became quiet and still. This can be an overload-to-shutdown pattern.",
+        "Give space and reduce stimulation. Avoid many questions in the moment.",
+        "When he recovers, keep the next steps simple and predictable."
+      ]
+    }
+  }
+}

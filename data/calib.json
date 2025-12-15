@@ -1,0 +1,29 @@
+{
+  "temperatures": {
+    "video": 4.670196533203125,
+    "audio": 5.8224873542785645
+  },
+  "fusion": {
+    "alpha_v": 0.5248993635177612,
+    "alpha_a": 0.4657672941684723,
+    "alpha_t": 0.009333296678960323
+  },
+  "functions": [
+    "allocate_care",
+    "avoid_overload",
+    "delayed_meltdown",
+    "frozen_distress",
+    "keep_object",
+    "mask_snap",
+    "masking_possible",
+    "need_predictability",
+    "ocd_loop",
+    "repair_integrity",
+    "sensory_overload",
+    "share_control"
+  ],
+  "notes": [
+    "Calibrated on synthetic draws from prototype libraries + text priors.",
+    "Not clinical; only stabilizes fusion hyperparameters."
+  ]
+}

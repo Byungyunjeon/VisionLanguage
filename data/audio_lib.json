@@ -1,0 +1,1369 @@
+{
+  "meta": {
+    "version": "step1-audio-lib-v2",
+    "language": "en",
+    "time_unit": "seconds",
+    "notes": [
+      "Audio prototypes are designed for Step 1: short sequences with mixed audio-state probabilities and detailed caregiver-oriented interpretations.",
+      "They are NOT clinical labels. They represent coarse vocal/prosody patterns (quiet, tense speech, whine, cry, scream, breathy, etc.).",
+      "Use these prototypes to compute distances/energies between observed audio sequences and prototype sequences, then convert to soft weights via Boltzmann/Gibbs.",
+      "You may map continuous audio features (RMS, f0_mean, f0_std, voiced_ratio, ZCR) into these audio states using simple heuristics in Step 1.",
+      "Normalized schema: prototypes[*].id, steps[*].duration_sec, steps[*].dist"
+    ]
+  },
+  "states": [
+    "silence",
+    "quiet",
+    "speech",
+    "tense_speech",
+    "whine",
+    "cry",
+    "scream",
+    "breathy",
+    "laugh",
+    "staccato",
+    "mutter",
+    "giggle",
+    "sob",
+    "sniffle"
+  ],
+  "prototypes": [
+    {
+      "id": "A01",
+      "pattern": "quiet_to_tense_speech_to_quiet",
+      "description": "Low vocal activity becomes urgent/tense speech for a short burst, then returns to quiet. Often indicates a brief rising need or protest that may resolve if acknowledged.",
+      "mapped_functions": {
+        "share_control": 0.35,
+        "need_predictability": 0.25,
+        "avoid_overload": 0.15,
+        "repair_integrity": 0.1
+      },
+      "caregiver_meaning": "A short tension burst can mean: 'I need you to notice something now.' The return to quiet suggests the child may accept support or is checking your response.",
+      "caregiver_suggestions": [
+        "Acknowledge with one calm sentence and one clear next step.",
+        "Keep timing predictable; avoid multiple instructions at once."
+      ],
+      "likely_next_events": [
+        "If ignored, tense speech may repeat or shift into whining/cry.",
+        "If acknowledged, the child may stabilize quickly."
+      ],
+      "cautions": [
+        "Do not interpret urgency as defiance; it may be a request for shared control or clarity."
+      ],
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "quiet": 0.85,
+            "speech": 0.15
+          },
+          "note": "Mostly quiet; may include small sighs or short words."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "tense_speech": 0.75,
+            "speech": 0.25
+          },
+          "note": "Speech becomes faster/louder or higher-pitched; urgency rises."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.9,
+            "speech": 0.1
+          },
+          "note": "Returns to quiet; may be relief or waiting for response."
+        }
+      ]
+    },
+    {
+      "id": "A02",
+      "pattern": "whine_to_cry_then_quiet",
+      "description": "Whining escalates into crying, followed by sudden quiet. This can reflect overload or exhaustion after escalation.",
+      "mapped_functions": {
+        "avoid_overload": 0.35,
+        "sensory_overload": 0.3,
+        "delayed_meltdown": 0.2,
+        "share_control": 0.1
+      },
+      "caregiver_meaning": "Escalation followed by quiet can mean the child is 'spent' or moving toward shutdown. The quiet is not always calm; it may be recovery mode.",
+      "caregiver_suggestions": [
+        "Reduce stimulation immediately after crying.",
+        "Offer water and a quiet space; use fewer words.",
+        "Wait before asking questions."
+      ],
+      "likely_next_events": [
+        "Prolonged quiet stillness after crying (shutdown).",
+        "A second wave of crying if stimulation continues."
+      ],
+      "cautions": [
+        "If the child becomes unusually still or unresponsive, prioritize comfort and safety over problem-solving."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "quiet": 0.75,
+            "breathy": 0.25
+          },
+          "note": "Quiet but tense breathing may appear."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "whine": 0.75,
+            "speech": 0.15,
+            "quiet": 0.1
+          },
+          "note": "Whining begins; repetitive vocal tone or complaining."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "cry": 0.7,
+            "sob": 0.2,
+            "scream": 0.1
+          },
+          "note": "Crying with possible sobbing; intensity peaks."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.8,
+            "sniffle": 0.2
+          },
+          "note": "Drops to quiet; sniffles or breath control."
+        }
+      ]
+    },
+    {
+      "id": "A03",
+      "pattern": "sudden_scream_spike",
+      "description": "A sharp scream or yelp appears abruptly with little lead-in. Often indicates acute pain, surprise, or intense boundary violation.",
+      "mapped_functions": {
+        "repair_integrity": 0.2,
+        "avoid_overload": 0.35,
+        "sensory_overload": 0.25,
+        "share_control": 0.1
+      },
+      "caregiver_meaning": "An abrupt scream often means something felt suddenly unsafe. For some children, a small event can feel huge if it breaks a rule or sensory boundary.",
+      "caregiver_suggestions": [
+        "First ensure physical safety (no injury).",
+        "Use calm voice; reduce immediate demands.",
+        "Offer a predictable 'safe' routine (quiet corner, hug if accepted)."
+      ],
+      "likely_next_events": [
+        "Immediate crying escalation if not comforted.",
+        "Attempt to escape (running away) or push away stimulus."
+      ],
+      "cautions": [
+        "Avoid arguing or lecturing right after the spike; regulation comes first."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "quiet": 0.9,
+            "breathy": 0.1
+          },
+          "note": "Baseline quiet."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "scream": 0.9,
+            "cry": 0.1
+          },
+          "note": "Sudden high-intensity vocal spike."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "cry": 0.55,
+            "sob": 0.25,
+            "whine": 0.2
+          },
+          "note": "Aftershock crying/whine."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.85,
+            "sniffle": 0.15
+          },
+          "note": "Cool-down quiet."
+        }
+      ]
+    },
+    {
+      "id": "A04",
+      "pattern": "tense_speech_loop",
+      "description": "Repeated tense speech bursts with short pauses, suggesting a loop: asking, checking, insisting, or protesting.",
+      "mapped_functions": {
+        "ocd_loop": 0.35,
+        "share_control": 0.25,
+        "need_predictability": 0.25,
+        "repair_integrity": 0.1
+      },
+      "caregiver_meaning": "Looping urgent speech can be the child's way to secure certainty: 'Tell me it is safe / confirm the rule / fix it now.'",
+      "caregiver_suggestions": [
+        "Give one short answer and one clear plan; repeat the same words each time.",
+        "Avoid changing explanations; consistency reduces looping."
+      ],
+      "likely_next_events": [
+        "Escalation into whining/cry if responses vary.",
+        "Calming if you give one stable plan and repeat it consistently."
+      ],
+      "cautions": [
+        "Do not over-reassure with many new details; it can feed the loop."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "tense_speech": 0.7,
+            "speech": 0.3
+          },
+          "note": "Urgent words or repeated phrase begins."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "quiet": 0.8,
+            "breathy": 0.2
+          },
+          "note": "Short pause; waiting for response."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "tense_speech": 0.75,
+            "speech": 0.25
+          },
+          "note": "Repetition returns; tone may rise."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "quiet": 0.8,
+            "breathy": 0.2
+          },
+          "note": "Pause again."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "tense_speech": 0.8,
+            "speech": 0.2
+          },
+          "note": "Loop continues."
+        }
+      ]
+    },
+    {
+      "id": "A05",
+      "pattern": "quiet_with_anxious_breathing",
+      "description": "Low overall volume but breathy/irregular breathing suggests hidden tension (possible masking) without strong vocalization.",
+      "mapped_functions": {
+        "mask_snap": 0.3,
+        "delayed_meltdown": 0.25,
+        "avoid_overload": 0.2,
+        "frozen_distress": 0.2
+      },
+      "caregiver_meaning": "This can indicate internal stress without outward crying. The child may be holding it in, preparing to cope, or nearing a snap.",
+      "caregiver_suggestions": [
+        "Lower stimulation and speak softly.",
+        "Offer a simple choice ('break or continue?').",
+        "Avoid sudden transitions."
+      ],
+      "likely_next_events": [
+        "If demands increase, sudden crying may occur.",
+        "If environment stays calm, tension may gradually drop."
+      ],
+      "cautions": [
+        "Quiet does not always equal calm; watch for other cues and context."
+      ],
+      "steps": [
+        {
+          "duration_sec": 6,
+          "dist": {
+            "quiet": 0.7,
+            "breathy": 0.3
+          },
+          "note": "Sustained quiet with breathy cues; may include small sighs."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.85,
+            "breathy": 0.15
+          },
+          "note": "Brief stabilization."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "quiet": 0.65,
+            "breathy": 0.35
+          },
+          "note": "Breathing tension returns."
+        }
+      ]
+    },
+    {
+      "id": "A06",
+      "pattern": "incongruent_laugh_with_tension",
+      "description": "Laugh/giggle appears together with tension cues (high pitch variability or rapid breathing). Can be incongruent affect, excitement mixed with anxiety.",
+      "mapped_functions": {
+        "masking_possible": 0.3,
+        "avoid_overload": 0.2,
+        "share_control": 0.15,
+        "sensory_overload": 0.15
+      },
+      "caregiver_meaning": "Some children laugh when nervous or overstimulated. The sound alone can mislead; mixed tension suggests careful pacing.",
+      "caregiver_suggestions": [
+        "Keep interaction calm and predictable.",
+        "Slow down play; reduce sensory load if laughter becomes frantic."
+      ],
+      "likely_next_events": [
+        "Could shift to whining/cry if overstimulation continues.",
+        "Could settle if stimulation is reduced."
+      ],
+      "cautions": [
+        "Do not assume laughter means everything is fine; check context."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "giggle": 0.7,
+            "laugh": 0.2,
+            "breathy": 0.1
+          },
+          "note": "Giggle begins; may seem playful."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "giggle": 0.5,
+            "laugh": 0.2,
+            "tense_speech": 0.2,
+            "breathy": 0.1
+          },
+          "note": "Giggle mixed with tense utterances or fast breathing."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.7,
+            "speech": 0.2,
+            "breathy": 0.1
+          },
+          "note": "Returns toward neutral vocal activity."
+        }
+      ]
+    },
+    {
+      "id": "A07",
+      "pattern": "whispered_urgency",
+      "description": "Low volume but urgent prosody (fast rate, high pitch variability). Often indicates the child is trying to communicate while staying controlled.",
+      "mapped_functions": {
+        "share_control": 0.25,
+        "need_predictability": 0.25,
+        "mask_snap": 0.2,
+        "delayed_meltdown": 0.15
+      },
+      "caregiver_meaning": "Soft urgent speech can be a sign of self-control under stress: 'I need this, but I'm trying not to explode.'",
+      "caregiver_suggestions": [
+        "Listen for the main request; reflect it back simply.",
+        "Give one clear next step; avoid debating."
+      ],
+      "likely_next_events": [
+        "If unmet, can flip into loud crying quickly.",
+        "If understood, can de-escalate fast."
+      ],
+      "cautions": [
+        "If speech content is unclear, focus on regulation support rather than demanding precise words."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.6,
+            "mutter": 0.3,
+            "quiet": 0.1
+          },
+          "note": "Soft speech begins; may be repetitive."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "tense_speech": 0.55,
+            "mutter": 0.35,
+            "speech": 0.1
+          },
+          "note": "Urgency increases but volume stays low."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.8,
+            "speech": 0.2
+          },
+          "note": "Stops talking; waiting or holding tension."
+        }
+      ]
+    },
+    {
+      "id": "A08",
+      "pattern": "repetitive_sob_sniffle",
+      "description": "Low-to-medium sobbing/sniffling repeats over time without a big peak. Indicates sustained sadness/distress or recovery after crying.",
+      "mapped_functions": {
+        "delayed_meltdown": 0.25,
+        "repair_integrity": 0.15,
+        "avoid_overload": 0.25,
+        "frozen_distress": 0.15
+      },
+      "caregiver_meaning": "Sustained sobbing suggests the child is still in distress even if the loud crying has ended. Recovery takes time.",
+      "caregiver_suggestions": [
+        "Provide calm presence; reduce instruction load.",
+        "Offer water; allow time."
+      ],
+      "likely_next_events": [
+        "May resume crying if the trigger returns.",
+        "May settle with quiet comfort and reduced demands."
+      ],
+      "cautions": [
+        "Avoid rushing back to the task immediately; give a buffer."
+      ],
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "sob": 0.55,
+            "sniffle": 0.35,
+            "quiet": 0.1
+          },
+          "note": "Soft sobbing and sniffles."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "sob": 0.45,
+            "sniffle": 0.4,
+            "whine": 0.15
+          },
+          "note": "Continues; may include whine."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.7,
+            "sniffle": 0.3
+          },
+          "note": "Gradual recovery."
+        }
+      ]
+    },
+    {
+      "id": "A09",
+      "pattern": "staccato_protest",
+      "description": "Short, clipped bursts of voice (e.g., 'no! no!') with pauses. A protest pattern often tied to boundaries or refusal.",
+      "mapped_functions": {
+        "share_control": 0.25,
+        "avoid_overload": 0.2,
+        "need_predictability": 0.2,
+        "repair_integrity": 0.1
+      },
+      "caregiver_meaning": "This can be the child's attempt to stop a transition or regain control. The pauses are often checks: 'Did you listen?'",
+      "caregiver_suggestions": [
+        "Acknowledge boundary: 'Stop. I hear you.' Then offer one choice.",
+        "Slow down transitions."
+      ],
+      "likely_next_events": [
+        "If pushed, may escalate to crying.",
+        "If acknowledged and given structure, may settle."
+      ],
+      "cautions": [
+        "Avoid arguing; keep phrasing consistent."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "tense_speech": 0.65,
+            "speech": 0.35
+          },
+          "note": "Clipped protest begins."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "quiet": 0.9,
+            "breathy": 0.1
+          },
+          "note": "Pause."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "tense_speech": 0.7,
+            "speech": 0.3
+          },
+          "note": "Protest repeats."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "whine": 0.5,
+            "tense_speech": 0.3,
+            "speech": 0.2
+          },
+          "note": "May soften into whine."
+        }
+      ]
+    },
+    {
+      "id": "A10",
+      "pattern": "quiet_then_sudden_cry",
+      "description": "Quiet baseline then abrupt crying without long whining lead-in, suggesting a quick capacity drop.",
+      "mapped_functions": {
+        "mask_snap": 0.35,
+        "delayed_meltdown": 0.25,
+        "avoid_overload": 0.2,
+        "sensory_overload": 0.1
+      },
+      "caregiver_meaning": "Abrupt crying after quiet can mean the child was holding stress. The onset is fast; prevention relies on earlier subtle cues.",
+      "caregiver_suggestions": [
+        "Pause demands immediately; provide a break.",
+        "Use fewer words and a predictable soothing routine."
+      ],
+      "likely_next_events": [
+        "Crying may intensify if demands continue.",
+        "May settle with rapid reduction of stimulation."
+      ],
+      "cautions": [
+        "Do not assume 'nothing happened' just because the lead-in was quiet; the load may have been internal."
+      ],
+      "steps": [
+        {
+          "duration_sec": 5,
+          "dist": {
+            "quiet": 0.85,
+            "breathy": 0.15
+          },
+          "note": "Quiet; may look controlled."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "cry": 0.85,
+            "sob": 0.15
+          },
+          "note": "Abrupt crying starts."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "cry": 0.7,
+            "sob": 0.2,
+            "whine": 0.1
+          },
+          "note": "Crying continues."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.8,
+            "sniffle": 0.2
+          },
+          "note": "Recovery."
+        }
+      ]
+    },
+    {
+      "id": "A11",
+      "pattern": "continuous_loud_crying",
+      "description": "Sustained loud crying with minimal pauses. Indicates active distress; regulation support takes priority over reasoning.",
+      "mapped_functions": {
+        "sensory_overload": 0.25,
+        "avoid_overload": 0.3,
+        "repair_integrity": 0.15,
+        "share_control": 0.1
+      },
+      "caregiver_meaning": "This is a strong distress state. Cognitive demands (explaining, teaching) usually don't help mid-episode.",
+      "caregiver_suggestions": [
+        "Reduce stimulation; keep voice calm and short.",
+        "Offer a safe space; avoid multiple instructions."
+      ],
+      "likely_next_events": [
+        "May transition to shutdown (quiet, still).",
+        "May fluctuate with repeated spikes."
+      ],
+      "cautions": [
+        "If safety is at risk, prioritize safety and seek appropriate support."
+      ],
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "cry": 0.8,
+            "scream": 0.1,
+            "sob": 0.1
+          },
+          "note": "High-intensity crying begins."
+        },
+        {
+          "duration_sec": 5,
+          "dist": {
+            "cry": 0.75,
+            "sob": 0.2,
+            "scream": 0.05
+          },
+          "note": "Sustained crying."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "cry": 0.6,
+            "sob": 0.25,
+            "whine": 0.15
+          },
+          "note": "Gradual decrease but still distressed."
+        }
+      ]
+    },
+    {
+      "id": "A12",
+      "pattern": "self_soothing_mutter_hum",
+      "description": "Low-volume muttering/humming pattern that can indicate self-regulation. It may appear before or after stress.",
+      "mapped_functions": {
+        "keep_object": 0.2,
+        "need_predictability": 0.2,
+        "frozen_distress": 0.15,
+        "avoid_overload": 0.15
+      },
+      "caregiver_meaning": "Self-soothing vocalizations can be coping. They may indicate the child is regulating and needs space rather than questions.",
+      "caregiver_suggestions": [
+        "Allow space; keep environment steady.",
+        "If you need to intervene, do it gently and predictably."
+      ],
+      "likely_next_events": [
+        "If interrupted harshly, may escalate.",
+        "If allowed, may stabilize."
+      ],
+      "cautions": [
+        "Do not treat self-soothing as misbehavior; it can be protective."
+      ],
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "mutter": 0.55,
+            "quiet": 0.3,
+            "breathy": 0.15
+          },
+          "note": "Soft repetitive sounds."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "mutter": 0.45,
+            "speech": 0.25,
+            "quiet": 0.3
+          },
+          "note": "May include small words."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.75,
+            "mutter": 0.25
+          },
+          "note": "Settles."
+        }
+      ]
+    },
+    {
+      "id": "A13",
+      "pattern": "fast_excited_speech",
+      "description": "Rapid speech with rising loudness; can be joy/excitement but also tip into overload if stimulation continues.",
+      "mapped_functions": {
+        "allocate_care": 0.1,
+        "avoid_overload": 0.2,
+        "sensory_overload": 0.15,
+        "share_control": 0.15
+      },
+      "caregiver_meaning": "Excitement can be positive, but a very fast pace may signal overload risk. The child may need pacing support.",
+      "caregiver_suggestions": [
+        "Slow down the activity; give breaks.",
+        "Use calm tone to pace without stopping abruptly."
+      ],
+      "likely_next_events": [
+        "Could shift to whining/cry if overstimulated.",
+        "Could remain joyful if paced."
+      ],
+      "cautions": [
+        "Avoid sudden termination; abrupt stops can trigger distress in some children."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.8,
+            "giggle": 0.2
+          },
+          "note": "Excited talking begins."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "tense_speech": 0.4,
+            "speech": 0.5,
+            "laugh": 0.1
+          },
+          "note": "Speed and intensity rise; mixed excitement/urgency."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "speech": 0.6,
+            "breathy": 0.2,
+            "quiet": 0.2
+          },
+          "note": "Settles or breathy recovery."
+        }
+      ]
+    },
+    {
+      "id": "A14",
+      "pattern": "sniffle_then_tense_request",
+      "description": "Quiet with sniffles, then a tense request. Often a 'hurt/repair' sequence: distress then asking for fix or reassurance.",
+      "mapped_functions": {
+        "repair_integrity": 0.3,
+        "share_control": 0.15,
+        "need_predictability": 0.2,
+        "ocd_loop": 0.1
+      },
+      "caregiver_meaning": "The child may be moving from distress into problem-focused asking: 'Fix it' or 'Help me.'",
+      "caregiver_suggestions": [
+        "Reflect the likely need ('You want it fixed' / 'You need help').",
+        "Offer one clear repair or closure action."
+      ],
+      "likely_next_events": [
+        "May calm if repair/plan is provided.",
+        "May escalate if the request is not understood."
+      ],
+      "cautions": [
+        "Avoid multiple changing promises; pick one plan you can keep."
+      ],
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "quiet": 0.7,
+            "sniffle": 0.3
+          },
+          "note": "Sniffles suggest mild distress."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "sniffle": 0.35,
+            "sob": 0.35,
+            "quiet": 0.3
+          },
+          "note": "Distress continues, not fully escalated."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "tense_speech": 0.6,
+            "speech": 0.3,
+            "whine": 0.1
+          },
+          "note": "Tense request appears; seeking resolution."
+        }
+      ]
+    },
+    {
+      "id": "A15",
+      "pattern": "cry_then_tense_explanation",
+      "description": "Crying reduces, then tense speech appears. Often indicates the child is trying to explain or negotiate after distress.",
+      "mapped_functions": {
+        "share_control": 0.2,
+        "need_predictability": 0.2,
+        "repair_integrity": 0.15,
+        "avoid_overload": 0.15
+      },
+      "caregiver_meaning": "After crying, the child may become more communicative. This is a good window for simple, supportive problem-solving.",
+      "caregiver_suggestions": [
+        "Listen briefly; reflect the main point; give one step.",
+        "Keep tone calm; do not demand long explanations."
+      ],
+      "likely_next_events": [
+        "May settle if understood.",
+        "May re-escalate if interrupted or pushed too hard."
+      ],
+      "cautions": [
+        "Avoid moralizing during recovery; focus on repairing safety and predictability."
+      ],
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "cry": 0.7,
+            "sob": 0.3
+          },
+          "note": "Crying episode."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "whine": 0.5,
+            "cry": 0.3,
+            "speech": 0.2
+          },
+          "note": "Crying weakens; whine and words start."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "tense_speech": 0.55,
+            "speech": 0.35,
+            "sniffle": 0.1
+          },
+          "note": "Tense explanation/request."
+        }
+      ]
+    },
+    {
+      "id": "A16",
+      "pattern": "spike_then_long_silence",
+      "description": "A short spike (cry/scream) followed by extended silence. Often a shutdown-like recovery pattern.",
+      "mapped_functions": {
+        "frozen_distress": 0.35,
+        "delayed_meltdown": 0.25,
+        "avoid_overload": 0.2,
+        "sensory_overload": 0.1
+      },
+      "caregiver_meaning": "A long silence after a spike can mean the child is recovering or shutting down. Treat it gently and avoid pressure.",
+      "caregiver_suggestions": [
+        "Offer calm presence; reduce stimulation.",
+        "Wait before reintroducing tasks."
+      ],
+      "likely_next_events": [
+        "Delayed crying later.",
+        "Slow return of speech if safe."
+      ],
+      "cautions": [
+        "Do not assume the issue is resolved just because it became quiet."
+      ],
+      "steps": [
+        {
+          "duration_sec": 1,
+          "dist": {
+            "scream": 0.7,
+            "cry": 0.3
+          },
+          "note": "Brief spike."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "cry": 0.6,
+            "sob": 0.4
+          },
+          "note": "Short crying tail."
+        },
+        {
+          "duration_sec": 8,
+          "dist": {
+            "silence": 0.7,
+            "quiet": 0.3
+          },
+          "note": "Long silence/very low vocal activity."
+        }
+      ]
+    },
+    {
+      "id": "A17",
+      "pattern": "voice_disappears_under_noise",
+      "description": "Environmental noise rises or remains high while child voicing decreases. Suggests the child may be overwhelmed or withdrawing.",
+      "mapped_functions": {
+        "sensory_overload": 0.35,
+        "avoid_overload": 0.25,
+        "frozen_distress": 0.2,
+        "delayed_meltdown": 0.1
+      },
+      "caregiver_meaning": "When noise is high, the child may stop speaking not because of calm but because coping resources are used up.",
+      "caregiver_suggestions": [
+        "Move to a quieter spot; reduce talking.",
+        "Give a break from demands."
+      ],
+      "likely_next_events": [
+        "May escalate to crying if forced.",
+        "May recover if moved to quieter setting."
+      ],
+      "cautions": [
+        "Be careful interpreting low voice in noisy environments."
+      ],
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "speech": 0.4,
+            "quiet": 0.6
+          },
+          "note": "Some speech at first."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "quiet": 0.3,
+            "silence": 0.3,
+            "breathy": 0.4
+          },
+          "note": "Voice reduces; breathy cues increase."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "silence": 0.6,
+            "quiet": 0.4
+          },
+          "note": "Voicing largely disappears."
+        }
+      ]
+    },
+    {
+      "id": "A18",
+      "pattern": "reassurance_seeking_questions",
+      "description": "Short repeated questions in a similar tone (often tense). Indicates uncertainty and desire for confirmation.",
+      "mapped_functions": {
+        "ocd_loop": 0.3,
+        "need_predictability": 0.3,
+        "share_control": 0.2,
+        "repair_integrity": 0.1
+      },
+      "caregiver_meaning": "Repeating questions can be a way to reduce uncertainty. The child may not be satisfied by new explanations; consistency matters.",
+      "caregiver_suggestions": [
+        "Answer once briefly; repeat the same answer; show the plan (timer/checklist)."
+      ],
+      "likely_next_events": [
+        "Loop continues if answers vary.",
+        "Loop weakens if you give the same short answer and a stable plan."
+      ],
+      "cautions": [
+        "Avoid long lectures; they can increase uncertainty."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.6,
+            "tense_speech": 0.4
+          },
+          "note": "Short question."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "quiet": 0.8,
+            "breathy": 0.2
+          },
+          "note": "Pause."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.55,
+            "tense_speech": 0.45
+          },
+          "note": "Question repeats."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "quiet": 0.8,
+            "breathy": 0.2
+          },
+          "note": "Pause."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.5,
+            "tense_speech": 0.5
+          },
+          "note": "Repeats again."
+        }
+      ]
+    },
+    {
+      "id": "A19",
+      "pattern": "counting_or_chanting_ritual",
+      "description": "Repetitive counting/chanting sounds. May be self-regulation, ritual, or a need for structured sequence.",
+      "mapped_functions": {
+        "need_predictability": 0.35,
+        "share_control": 0.2,
+        "keep_object": 0.15,
+        "avoid_overload": 0.1
+      },
+      "caregiver_meaning": "Ritual speech can help maintain predictability. Interrupting abruptly can increase distress.",
+      "caregiver_suggestions": [
+        "Allow completion when safe; if stopping is needed, warn and give a countdown."
+      ],
+      "likely_next_events": [
+        "May escalate if ritual is stopped suddenly.",
+        "May settle if ritual completes."
+      ],
+      "cautions": [
+        "Do not shame the ritual; treat it as a coping tool."
+      ],
+      "steps": [
+        {
+          "duration_sec": 5,
+          "dist": {
+            "mutter": 0.4,
+            "speech": 0.4,
+            "quiet": 0.2
+          },
+          "note": "Chant-like speech repeats."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "mutter": 0.55,
+            "quiet": 0.45
+          },
+          "note": "Continues with fewer clear words."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "quiet": 0.8,
+            "mutter": 0.2
+          },
+          "note": "Stops."
+        }
+      ]
+    },
+    {
+      "id": "A20",
+      "pattern": "soft_no_then_breathy_freeze",
+      "description": "Soft refusal ('no') then breathy quiet. Can indicate fear or overwhelmed state rather than negotiation.",
+      "mapped_functions": {
+        "frozen_distress": 0.3,
+        "avoid_overload": 0.25,
+        "need_predictability": 0.2,
+        "sensory_overload": 0.15
+      },
+      "caregiver_meaning": "A soft refusal followed by breathy quiet suggests a freeze response. The child may need safety, not persuasion.",
+      "caregiver_suggestions": [
+        "Pause demands; offer a safe option; reduce stimulation.",
+        "Use short sentences and wait."
+      ],
+      "likely_next_events": [
+        "Can turn into crying if pushed.",
+        "Can recover if given space and predictable support."
+      ],
+      "cautions": [
+        "Avoid interpreting freeze as compliance."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.4,
+            "tense_speech": 0.3,
+            "quiet": 0.3
+          },
+          "note": "Soft refusal appears."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "breathy": 0.5,
+            "quiet": 0.5
+          },
+          "note": "Breathy quiet; tension persists."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "silence": 0.4,
+            "quiet": 0.6
+          },
+          "note": "Near-silence; possible freeze."
+        }
+      ]
+    },
+    {
+      "id": "A21",
+      "pattern": "hyperventilation_pre_cry",
+      "description": "Breathing rate increases (breathy noise) before crying. Useful early warning for impending distress.",
+      "mapped_functions": {
+        "delayed_meltdown": 0.3,
+        "mask_snap": 0.25,
+        "avoid_overload": 0.2,
+        "sensory_overload": 0.15
+      },
+      "caregiver_meaning": "Breathing changes can be an early sign of overload. Catching this window can prevent full escalation.",
+      "caregiver_suggestions": [
+        "Reduce stimulation immediately; offer break; keep voice slow and calm."
+      ],
+      "likely_next_events": [
+        "Crying escalation likely if trigger remains.",
+        "De-escalation possible if stimulation is reduced quickly."
+      ],
+      "cautions": [
+        "Do not wait for visible crying; treat breathing changes as meaningful."
+      ],
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "breathy": 0.6,
+            "quiet": 0.4
+          },
+          "note": "Breathing speeds up."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "breathy": 0.7,
+            "whine": 0.3
+          },
+          "note": "Breathing plus whining."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "cry": 0.65,
+            "sob": 0.25,
+            "breathy": 0.1
+          },
+          "note": "Crying begins."
+        }
+      ]
+    },
+    {
+      "id": "A22",
+      "pattern": "sniffle_with_checking_questions",
+      "description": "Sniffles plus repeated checking questions. Combines mild distress with uncertainty-loop behavior.",
+      "mapped_functions": {
+        "ocd_loop": 0.35,
+        "need_predictability": 0.3,
+        "repair_integrity": 0.15,
+        "avoid_overload": 0.1
+      },
+      "caregiver_meaning": "This pattern suggests the child is both upset and seeking certainty. Consistent closure helps.",
+      "caregiver_suggestions": [
+        "Answer briefly; repeat the same closure; use a visual/timer if available."
+      ],
+      "likely_next_events": [
+        "Loop persists if answers change.",
+        "Loop weakens with stable plan + repeated closure phrase."
+      ],
+      "cautions": [
+        "Avoid changing rules mid-way; it increases uncertainty."
+      ],
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "sniffle": 0.4,
+            "quiet": 0.6
+          },
+          "note": "Mild distress."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.55,
+            "tense_speech": 0.25,
+            "sniffle": 0.2
+          },
+          "note": "Checking question appears."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "quiet": 0.7,
+            "sniffle": 0.3
+          },
+          "note": "Pause."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "speech": 0.5,
+            "tense_speech": 0.3,
+            "sniffle": 0.2
+          },
+          "note": "Question repeats."
+        }
+      ]
+    },
+    {
+      "id": "A23",
+      "pattern": "scream_protest_alternation",
+      "description": "Alternating scream spikes and protest speech. Indicates high arousal plus attempts to control the situation.",
+      "mapped_functions": {
+        "share_control": 0.25,
+        "avoid_overload": 0.25,
+        "sensory_overload": 0.25,
+        "repair_integrity": 0.1
+      },
+      "caregiver_meaning": "The child is highly distressed and also trying to stop or control what is happening. De-escalation and safety first.",
+      "caregiver_suggestions": [
+        "Reduce demands; move to safe space; use minimal words.",
+        "If possible, restore predictability (clear 'we will stop now')."
+      ],
+      "likely_next_events": [
+        "May progress to continuous crying.",
+        "May drop into shutdown if prolonged."
+      ],
+      "cautions": [
+        "Do not escalate verbally; keep your tone low and consistent."
+      ],
+      "steps": [
+        {
+          "duration_sec": 1,
+          "dist": {
+            "scream": 0.8,
+            "cry": 0.2
+          },
+          "note": "Spike."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "tense_speech": 0.7,
+            "speech": 0.3
+          },
+          "note": "Protest words."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "scream": 0.75,
+            "cry": 0.25
+          },
+          "note": "Spike repeats."
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "cry": 0.55,
+            "whine": 0.25,
+            "tense_speech": 0.2
+          },
+          "note": "Mixed distress and protest."
+        }
+      ]
+    },
+    {
+      "id": "A24",
+      "pattern": "speech_cutoff_interruption",
+      "description": "Speech begins then abruptly stops, as if the child cut off mid-thought. Can indicate interruption sensitivity or sudden overwhelm.",
+      "mapped_functions": {
+        "avoid_overload": 0.25,
+        "frozen_distress": 0.2,
+        "need_predictability": 0.2,
+        "share_control": 0.15
+      },
+      "caregiver_meaning": "A sudden speech cutoff can mean the child hit a limit or got overwhelmed mid-communication.",
+      "caregiver_suggestions": [
+        "Give a pause; offer 'take your time' and one simple question later."
+      ],
+      "likely_next_events": [
+        "May resume speech if given time.",
+        "May escalate if pressed immediately."
+      ],
+      "cautions": [
+        "Avoid rapid follow-up questions immediately after cutoff."
+      ],
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "speech": 0.7,
+            "mutter": 0.2,
+            "quiet": 0.1
+          },
+          "note": "Speaking starts."
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "quiet": 0.4,
+            "breathy": 0.6
+          },
+          "note": "Abrupt cut; breathy."
+        },
+        {
+          "duration_sec": 5,
+          "dist": {
+            "quiet": 0.6,
+            "silence": 0.4
+          },
+          "note": "Long quiet; may be processing."
+        }
+      ]
+    },
+    {
+      "id": "A25",
+      "pattern": "rapid_valence_flip_laugh_to_cry",
+      "description": "Brief laughter/giggle followed by crying. Indicates rapid affect flip; can occur with overstimulation or frustration during play.",
+      "mapped_functions": {
+        "sensory_overload": 0.25,
+        "mask_snap": 0.25,
+        "share_control": 0.15,
+        "avoid_overload": 0.2
+      },
+      "caregiver_meaning": "A fast flip from laughter to crying can happen when play becomes too intense or a rule breaks suddenly.",
+      "caregiver_suggestions": [
+        "Slow the activity; restore predictability; offer a break."
+      ],
+      "likely_next_events": [
+        "Crying may intensify if stimulation continues.",
+        "May settle if activity is slowed and structure restored."
+      ],
+      "cautions": [
+        "Do not shame the flip; treat it as overload or sudden frustration."
+      ],
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "giggle": 0.6,
+            "laugh": 0.3,
+            "speech": 0.1
+          },
+          "note": "Playful vocalization."
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "breathy": 0.4,
+            "giggle": 0.3,
+            "tense_speech": 0.3
+          },
+          "note": "Tension mixes in."
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "cry": 0.65,
+            "sob": 0.2,
+            "whine": 0.15
+          },
+          "note": "Flip into crying."
+        }
+      ]
+    }
+  ]
+}

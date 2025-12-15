@@ -1,0 +1,7 @@
+
+=== STEP1 RESULT ===
+Top function: repair_integrity 0.1483175242591285
+Narration: Likely need: repair integrity (confidence 0.15). Something felt 'wrong' or broken. He became upset and wanted it restored. Repairing the detail can help him feel safe. risk(meltdown-ish)≈0.52, flip≈0.65 context: school entrance, noisy hallway
+Top-3 functions: [('repair_integrity', 0.1483175242591285), ('share_control', 0.14155188111737194), ('delayed_meltdown', 0.13417131285273973)]
+Best video proto: proto_repair_integrity_01
+Temps: 4.670196533203125 5.8224873542785645

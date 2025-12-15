@@ -1,0 +1,7 @@
+=== STEP1 BASELINE1 RESULT (sequence, no physics) ===
+Top function: repair_integrity 0.2808592868917378
+Top-3 functions: [('repair_integrity', 0.2808592868917378), ('share_control', 0.13496760110607975), ('ocd_loop', 0.11328535292245834)]
+Best video proto: proto_repair_integrity_01
+tau_v tau_a: 1.0 1.0
+
+Narration: Likely need: repair integrity (confidence 0.28). Something felt 'wrong' or broken. He became upset and wanted it restored. Repairing the detail can help him feel safe. context: school entrance, noisy hallway

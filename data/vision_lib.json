@@ -1,0 +1,413 @@
+{
+  "meta": {
+    "version": "step1-vision-lib-v2",
+    "time_unit": "seconds",
+    "notes": [
+      "Normalized schema: prototypes[*].id, steps[*].duration_sec, steps[*].dist"
+    ]
+  },
+  "states": [
+    "blank",
+    "calm",
+    "cry",
+    "fear",
+    "happy",
+    "neutral",
+    "sad",
+    "worry"
+  ],
+  "prototypes": [
+    {
+      "id": "proto_delayed_meltdown_01",
+      "pattern": "delayed_meltdown",
+      "narration_parent": "He looked calm for a while, then worry built up, and finally he cried. This can happen when stress is held inside and then breaks out.",
+      "narration_technical": "Long calm dwell then sharp barrier crossing into meltdown basin; delayed collapse signature.",
+      "steps": [
+        {
+          "duration_sec": 5,
+          "dist": {
+            "calm": 0.85,
+            "worry": 0.15
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "calm": 0.5,
+            "worry": 0.5
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "worry": 0.6,
+            "fear": 0.4
+          }
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "cry": 0.75,
+            "blank": 0.25
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_delayed_meltdown_02",
+      "pattern": "delayed_meltdown",
+      "narration_parent": "He seemed fine for a long time, then suddenly became scared and cried. This often means the stress was building quietly.",
+      "narration_technical": "Single sharp transition after long calm plateau; delayed meltdown extreme.",
+      "steps": [
+        {
+          "duration_sec": 6,
+          "dist": {
+            "calm": 0.9
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "worry": 0.8,
+            "neutral": 0.2
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "fear": 0.5,
+            "cry": 0.5
+          }
+        },
+        {
+          "duration_sec": 5,
+          "dist": {
+            "cry": 0.6,
+            "blank": 0.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_mask_snap_01",
+      "pattern": "mask_snap",
+      "narration_parent": "He looked happy, then suddenly cried and shut down. Sometimes children hide stress until it snaps.",
+      "narration_technical": "Masking plateau (positive affect) followed by abrupt collapse to cry + shutdown.",
+      "steps": [
+        {
+          "duration_sec": 5,
+          "dist": {
+            "happy": 0.85,
+            "calm": 0.15
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "happy": 0.7,
+            "neutral": 0.3
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "fear": 0.4,
+            "cry": 0.6
+          }
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "blank": 0.8,
+            "sad": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_mask_snap_02",
+      "pattern": "mask_snap",
+      "narration_parent": "He smiled, then worry appeared, then he cried. This can be a fast switch when masking fails.",
+      "narration_technical": "Gradual internal drift then sudden breakdown; masking-to-snap micro-trajectory.",
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "happy": 0.8
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "happy": 0.5,
+            "worry": 0.5
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "cry": 0.85,
+            "fear": 0.15
+          }
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "blank": 0.7,
+            "sad": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_frozen_distress_01",
+      "pattern": "frozen_distress",
+      "narration_parent": "He shows very little expression and becomes still. This can be a frozen distress state, not calm.",
+      "narration_technical": "Sustained low-expressivity basin occupancy; shutdown-like plateau.",
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "blank": 0.85,
+            "worry": 0.15
+          }
+        },
+        {
+          "duration_sec": 6,
+          "dist": {
+            "blank": 0.95
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_frozen_distress_02",
+      "pattern": "frozen_distress",
+      "narration_parent": "He became scared and then went quiet and still for a long time. This can mean overload with shutdown.",
+      "narration_technical": "Fast drop into frozen basin with long dwell; post-distress fatigue tail.",
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "fear": 0.4,
+            "blank": 0.6
+          }
+        },
+        {
+          "duration_sec": 8,
+          "dist": {
+            "blank": 0.95
+          }
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "blank": 0.8,
+            "sad": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_share_control_01",
+      "pattern": "share_control",
+      "narration_parent": "He wanted to start together or match timing. When the sequence broke, distress rose quickly.",
+      "narration_technical": "Ritual/joint-action mismatch → rapid anxiety and escalation; control-sharing pattern.",
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "happy": 0.6,
+            "calm": 0.4
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "worry": 0.8
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "cry": 0.7,
+            "fear": 0.3
+          }
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "blank": 0.6,
+            "calm": 0.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_share_control_02",
+      "pattern": "share_control",
+      "narration_parent": "He enjoyed the activity, then suddenly needed shared timing. When it did not happen, he cried and then shut down.",
+      "narration_technical": "Sharp transition driven by joint timing mismatch; long shutdown tail.",
+      "steps": [
+        {
+          "duration_sec": 5,
+          "dist": {
+            "happy": 0.7
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "worry": 0.85
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "cry": 0.7,
+            "fear": 0.3
+          }
+        },
+        {
+          "duration_sec": 5,
+          "dist": {
+            "blank": 0.7,
+            "sad": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_repair_integrity_01",
+      "pattern": "repair_integrity",
+      "narration_parent": "Something felt 'wrong' or broken. He became upset and wanted it restored. Repairing the detail can help him feel safe.",
+      "narration_technical": "Integrity-violation response: worry → cry spike → prolonged tension until repair/acceptance.",
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "calm": 0.75,
+            "happy": 0.25
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "worry": 0.7,
+            "neutral": 0.3
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "cry": 0.75,
+            "fear": 0.25
+          }
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "worry": 0.5,
+            "sad": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_repair_integrity_02",
+      "pattern": "repair_integrity",
+      "narration_parent": "He was enjoying something, then it changed or broke, and he cried and stayed upset. Fixing the situation may reduce distress.",
+      "narration_technical": "Positive-to-violation collapse followed by long sadness basin dwell.",
+      "steps": [
+        {
+          "duration_sec": 2,
+          "dist": {
+            "happy": 0.6,
+            "calm": 0.4
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "worry": 0.8
+          }
+        },
+        {
+          "duration_sec": 1,
+          "dist": {
+            "cry": 0.9
+          }
+        },
+        {
+          "duration_sec": 5,
+          "dist": {
+            "sad": 0.7,
+            "blank": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_sensory_overload_01",
+      "pattern": "sensory_overload",
+      "narration_parent": "Too much sound, light, or touch can push him from calm into fear and crying, then shutdown.",
+      "narration_technical": "Sensory-driven climb along anxious ridge → meltdown → shutdown.",
+      "steps": [
+        {
+          "duration_sec": 3,
+          "dist": {
+            "calm": 0.8
+          }
+        },
+        {
+          "duration_sec": 3,
+          "dist": {
+            "worry": 0.6,
+            "fear": 0.4
+          }
+        },
+        {
+          "duration_sec": 2,
+          "dist": {
+            "cry": 0.85
+          }
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "blank": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "id": "proto_ocd_loop_01",
+      "pattern": "ocd_loop",
+      "narration_parent": "He stays worried for a long time, as if stuck on a thought. This can look like an anxious loop.",
+      "narration_technical": "Persistent anxious basin occupancy; low escape probability; OCD-like rumination loop.",
+      "steps": [
+        {
+          "duration_sec": 4,
+          "dist": {
+            "worry": 0.75,
+            "neutral": 0.25
+          }
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "worry": 0.8,
+            "fear": 0.2
+          }
+        },
+        {
+          "duration_sec": 4,
+          "dist": {
+            "worry": 0.85,
+            "sad": 0.15
+          }
+        }
+      ]
+    }
+  ]
+}

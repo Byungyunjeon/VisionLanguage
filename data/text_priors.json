@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "version": "step1-text-priors-v2",
+    "purpose": "Map NT caregiver descriptions to functional priors and ND-style interpretations",
+    "notes": [
+      "Text is optional input; treated as a prior, not a real-time signal.",
+      "Used to bias Boltzmann/Gibbs fusion over video/audio energies.",
+      "ND-style interpretation is NOT diagnosis; it is caregiver-facing explanation."
+    ]
+  },
+  "priors": [
+    {
+      "id": "T01",
+      "nt_description": "We are at the school entrance and my child does not want to go inside.",
+      "context_tags": [
+        "school",
+        "transition",
+        "separation"
+      ],
+      "function_prior": {
+        "share_control": 0.25,
+        "need_predictability": 0.3,
+        "avoid_overload": 0.2,
+        "mask_snap": 0.15
+      },
+      "nd_interpretation": "Transitions are hard. The child may need to start together or know the exact next step. Fear can be hidden until the last moment.",
+      "caregiver_guidance": [
+        "Explain the next two steps only.",
+        "Offer to start together (walk in side by side).",
+        "Avoid rushing or surprise."
+      ]
+    },
+    {
+      "id": "T02",
+      "nt_description": "He was fine all morning, then suddenly started crying.",
+      "context_tags": [
+        "sudden_change",
+        "home"
+      ],
+      "function_prior": {
+        "mask_snap": 0.35,
+        "delayed_meltdown": 0.3,
+        "avoid_overload": 0.2
+      },
+      "nd_interpretation": "The child may have been holding stress quietly. Crying appears when capacity is exceeded, not when the problem started.",
+      "caregiver_guidance": [
+        "Reduce stimulation immediately.",
+        "Do not ask many questions.",
+        "Give time before problem-solving."
+      ]
+    },
+    {
+      "id": "T03",
+      "nt_description": "He keeps asking the same question again and again.",
+      "context_tags": [
+        "repetition",
+        "question_loop"
+      ],
+      "function_prior": {
+        "ocd_loop": 0.4,
+        "need_predictability": 0.35,
+        "share_control": 0.15
+      },
+      "nd_interpretation": "Repeated questions often mean uncertainty, not curiosity. The child is checking safety or rules.",
+      "caregiver_guidance": [
+        "Give one short answer.",
+        "Repeat the same answer consistently.",
+        "Use a visual or timer if possible."
+      ]
+    },
+    {
+      "id": "T04",
+      "nt_description": "He laughs but something feels wrong.",
+      "context_tags": [
+        "incongruent_affect"
+      ],
+      "function_prior": {
+        "masking_possible": 0.35,
+        "sensory_overload": 0.25,
+        "avoid_overload": 0.2
+      },
+      "nd_interpretation": "Laughter can appear during anxiety or overload. Emotion may be mixed rather than purely happy.",
+      "caregiver_guidance": [
+        "Slow down the activity.",
+        "Reduce noise or stimulation.",
+        "Check context rather than facial expression alone."
+      ]
+    },
+    {
+      "id": "T05",
+      "nt_description": "He became very quiet and stopped talking.",
+      "context_tags": [
+        "silence",
+        "withdrawal"
+      ],
+      "function_prior": {
+        "frozen_distress": 0.35,
+        "delayed_meltdown": 0.25,
+        "avoid_overload": 0.2
+      },
+      "nd_interpretation": "Silence does not always mean calm. The child may be freezing or recovering from overload.",
+      "caregiver_guidance": [
+        "Lower demands.",
+        "Stay nearby calmly.",
+        "Wait before asking questions."
+      ]
+    }
+  ]
+}

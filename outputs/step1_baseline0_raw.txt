@@ -1,0 +1,14 @@
+=== STEP1 BASELINE0 RESULT (no sequence, no physics) ===
+Top emotion: sad 0.45911843759843873
+Top-3 emotions: [["sad", 0.45911843759843873], ["happy", 0.15894258731094232], ["calm", 0.1475499289077279]]
+Context: school entrance, noisy hallway
+
+Narration:
+Main visible emotion: sad (confidence ~0.46).
+Context note: school entrance, noisy hallway
+Audio suggests low arousal or quietness in this clip.
+
+What you can try (neutral, practical):
+- Speak briefly and calmly.
+- Reduce stimulation if possible (noise/light/requests).
+- Offer one clear next step and wait.
