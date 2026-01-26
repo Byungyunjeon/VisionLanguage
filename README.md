@@ -1,28 +1,209 @@
-# ASD Step1 (fixed JSON + code)
-This is a **Step 1** prototype: extract per-second emotion distributions from video (DeepFace),
-extract coarse per-second audio-state distributions from wav (librosa heuristics),
-combine with optional text priors, then match against prototype libraries using
-DTW energy + Boltzmann/Gibbs fusion to produce a caregiver-facing narration.
+# Interpreting Emotional Sequences in Autistic Children with Multimodal Temporal AI
 
-## Files
-- `run_step1.py` : end-to-end demo
-- `train_calibrate.py` : calibrate fusion temperatures/weights on prototypes only
-- `data/` : put your `demo.mp4` and JSON libs here (paths shown below)
+Autistic children often express distress through **temporal patterns of behavior** rather than isolated facial expressions. Caregivers may misinterpret these reactions by focusing on visible context (e.g., “it’s noisy”) instead of the **latent cause** (e.g., loss of control, disrupted expectations).
 
-## Quick start
+This repository presents a **multimodal temporal AI framework** that interprets emotional behavior as a **time-dependent sequence**, integrating:
+- per-second **facial emotion probability vectors** from video,
+- per-second **audio arousal cues** from the same recording (no speech recognition),
+- short **prototype trajectories** representing caregiver-relevant latent functions.
+
+Observed behavior is aligned to these prototypes using temporal alignment (DTW). An **energy-based, uncertainty-preserving inference scheme** converts alignment energy into probabilistic interpretations that remain cautious and interpretable. The system generates **parent-facing explanations** that help translate observed behavior into actionable understanding.
+
+> Research prototype only. Not a diagnostic or medical system.
+
+---
+
+## Key idea
+
+Instead of predicting a single emotion label, the system infers a **latent caregiver-relevant function** (e.g., `repair_integrity`, `share_control`) that best explains the **temporal evolution** of multimodal signals.
+
+Uncertainty is preserved explicitly so that explanations remain cautious rather than overconfident.
+
+---
+
+## Repository overview
+
+- `run_step1.py`  
+  Full Step-1 pipeline (vision + audio + text priors + optional narration + optional calibration)
+
+- `run_step1_baseline0.py`  
+  Minimal baseline (vision only, no text priors, no physics-style weighting)
+
+- `run_step1_baseline1.py`  
+  Sequence-aware baseline with text priors but **without** physics-style Boltzmann weighting
+
+- `train_calibrate_fixed.py`  
+  Learns fusion temperatures and weights from prototype libraries and text priors
+
+- `rewrite_step1*.py`  
+  Deterministic rewrite of raw output into a caregiver-facing explanation
+
+- `rewrite_*_with_ollama.py`  
+  Optional LLM-based rewriting using Ollama (local inference)
+
+---
+
+## Environment requirements
+
+### Python
+- Python **3.10+**
+
+### Core Python packages
+(see `requirements.txt`)
+
+- numpy, scipy
+- opencv-python
+- deepface (+ retina-face, mtcnn)
+- tensorflow (CPU or GPU)
+- librosa (audio)
+- torch (calibration)
+- tqdm, pillow, pyyaml
+
+### Optional (LLM rewrite)
+- **Ollama** system binary
+- Model: `qwen2.5:7b-instruct`
+
+Ollama is **not** a Python package and must be installed separately.
+
+---
+
+## AWS setup (example)
+
+**Instance**: `g4dn.xlarge`  
+- 1 × NVIDIA T4 (16GB)
+- 4 vCPUs
+- 16GB RAM
+- ~100GB SSD
+
 ```bash
-python -m venv .venv
+ssh -i "alscoregon2026.pem" ubuntu@ec2-35-91-112-78.us-west-2.compute.amazonaws.com
+
+cd asd/asd1/
 source .venv/bin/activate
-pip install -r requirements.txt
+````
 
-# copy your demo video and fixed json files
-mkdir -p data
-cp demo.mp4 data/demo.mp4
-cp step1_vision_lib_fixed.json data/vision_lib.json
-cp step1_audio_lib_fixed.json data/audio_lib.json
-cp step1_text_priors_fixed.json data/text_priors.json
-cp step1_narration_templates_fixed.json data/narr_templates.json
+To copy results back:
 
-python train_calibrate.py --vision data/vision_lib.json --audio data/audio_lib.json --text data/text_priors.json --out data/calib.json
-python run_step1.py --video data/demo.mp4 --text "school entrance, noisy hallway" --vision data/vision_lib.json --audio data/audio_lib.json --text_priors data/text_priors.json --narr data/narr_templates.json --calib data/calib.json
+```bash
+scp -i "alscoregon2026.pem" \
+  ubuntu@ec2-35-91-112-78.us-west-2.compute.amazonaws.com:/home/ubuntu/asd/asd1/pyasd23jan.tar.gz .
 ```
+
+---
+
+## Running examples
+
+### BASE0 (minimal sanity baseline)
+
+```bash
+python run_step1_baseline0.py \
+  --video data/demo.mp4
+
+python rewrite_step1_baseline0_human.py
+python rewrite_baseline0_with_ollama.py
+```
+
+**Purpose**: fast check that vision extraction works; no text priors, no physics layer.
+
+---
+
+### BASE1 (sequence-aware, no physics layer)
+
+```bash
+python run_step1_baseline1.py \
+  --video data/demo.mp4 \
+  --text "school entrance, noisy hallway" \
+  --vision data/vision_lib.json \
+  --audio data/audio_lib.json \
+  --text_priors data/text_priors.json
+
+python rewrite_step1_baseline1_human.py
+python rewrite_baseline1_with_ollama.py
+```
+
+**Purpose**: temporal alignment + text priors, but plain softmax over energies.
+
+---
+
+### Step-1 (full model, no calibration)
+
+```bash
+python run_step1.py \
+  --video data/demo.mp4 \
+  --text "school entrance, noisy hallway" \
+  --vision data/vision_lib.json \
+  --audio data/audio_lib.json \
+  --text_priors data/text_priors.json \
+  --narr data/narr_templates.json
+
+python rewrite_step1.py
+python rewrite_with_ollama.py
+```
+
+**Purpose**: full multimodal temporal inference with physics-style weighting.
+
+---
+
+### Step-1 with calibration (recommended)
+
+```bash
+python train_calibrate_fixed.py \
+  --vision data/vision_lib.json \
+  --audio data/audio_lib.json \
+  --text_priors data/text_priors.json \
+  --out data/calib.json
+```
+
+Then:
+
+```bash
+python run_step1.py \
+  --video data/demo.mp4 \
+  --text "school entrance, noisy hallway" \
+  --vision data/vision_lib.json \
+  --audio data/audio_lib.json \
+  --text_priors data/text_priors.json \
+  --narr data/narr_templates.json \
+  --calib data/calib.json
+
+python rewrite_step1.py
+python rewrite_with_ollama.py
+```
+
+**Purpose**: adjust temperatures and fusion weights so uncertainty is communicated more cautiously.
+
+---
+
+## Baseline comparison (conceptual)
+
+| Mode   | Temporal | Text prior | Physics weighting | Calibration |
+| ------ | -------- | ---------- | ----------------- | ----------- |
+| BASE0  | ✗        | ✗          | ✗                 | ✗           |
+| BASE1  | ✓        | ✓          | ✗                 | ✗           |
+| Step-1 | ✓        | ✓          | ✓                 | optional    |
+
+---
+
+## Output
+
+Step-1 produces:
+
+* ranked latent functions with probabilities,
+* uncertainty indicators (e.g., risk / flip likelihood),
+* a caregiver-facing explanation explaining **why** the behavior may have occurred,
+* optional LLM-refined narration.
+
+---
+
+## Notes
+
+* Audio is used **only as arousal / state information** (no ASR).
+* The system intentionally avoids hard classification and preserves uncertainty.
+* Live progress and timestamps are printed for long-running steps.
+
+---
+
+## Citation
+
+**Interpreting emotional sequences in autistic children with multimodal temporal AI**
+Byungyun Jeon
