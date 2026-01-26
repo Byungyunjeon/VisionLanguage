@@ -1,10 +1,42 @@
-numpy>=1.26
-scipy>=1.11
-librosa>=0.10
-soundfile>=0.12
-opencv-python-headless>=4.8
+# ----------------------------
+# Core numeric / utilities
+# ----------------------------
+numpy>=1.23
+scipy>=1.9
 tqdm>=4.66
-deepface>=0.0.93
-tensorflow>=2.20
-tf-keras>=2.20
+
+# ----------------------------
+# Video / vision (Step1)
+# ----------------------------
+opencv-python>=4.8
+deepface>=0.0.79
+retina-face>=0.0.13
+mtcnn>=0.1.1
+pillow>=9.5
+
+# TensorFlow (GPU-capable; CPU also works)
+tensorflow>=2.20.0
+
+# ----------------------------
+# Audio processing
+# ----------------------------
+librosa>=0.10.1
+soundfile>=0.12
+audioread>=3.0
+
+# ----------------------------
+# Calibration / optimization
+# ----------------------------
 torch>=2.1
+torchvision>=0.16
+
+# ----------------------------
+# JSON / config helpers
+# ----------------------------
+pyyaml>=6.0
+
+# ----------------------------
+# Optional: LLM-based rewriting
+# (requires system-installed ollama binary)
+# ----------------------------
+# no Python package needed for ollama itself
