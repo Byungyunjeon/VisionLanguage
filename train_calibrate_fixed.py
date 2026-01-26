@@ -23,6 +23,13 @@ import torch.nn.functional as F
 
 EPS = 1e-8
 
+import time
+
+def ts():
+    return time.strftime("%H:%M:%S")
+
+def log(msg):
+    print(f"[{ts()}] {msg}", flush=True)
 
 def load_json(path: str) -> Any:
     with open(path, "r", encoding="utf-8") as f:
@@ -181,11 +188,11 @@ def train_calibration(
         L.backward()
         opt.step()
 
-        if (step + 1) % 100 == 0:
+        if (step + 1) % 50 == 0:
             Tv_v = float(pos(raw_Tv).item())
             Ta_v = float(pos(raw_Ta).item())
             a = torch.softmax(raw_alpha, dim=0).detach().cpu().numpy().tolist()
-            print(
+            log(
                 f"[{step+1:04d}/{steps}] nll={float(L.item()):.3f} acc={correct/len(batch):.3f} "
                 f"Tv={Tv_v:.3f} Ta={Ta_v:.3f} alpha_v={a[0]:.3f} alpha_a={a[1]:.3f} alpha_t={a[2]:.3f}"
             )
