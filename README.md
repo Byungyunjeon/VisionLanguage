@@ -207,3 +207,155 @@ Step-1 produces:
 
 **Interpreting emotional sequences in autistic children with multimodal temporal AI**
 Byungyun Jeon
+
+---
+
+## Physics-inspired inference and uncertainty
+
+This system borrows concepts from **statistical physics** to reason about uncertainty in emotional interpretation. The goal is *not* to claim a physical model of the brain, but to use physics-inspired tools that naturally handle **soft evidence, competing explanations, and uncertainty**.
+
+---
+
+### Energy from temporal alignment (DTW)
+
+Observed behavior is a **time series**
+[
+X = (x_1, x_2, \dots, x_T)
+]
+where each (x_t) is a multimodal state (facial emotion probabilities + audio arousal features).
+
+Each latent function (f) (e.g., *repair integrity*, *share control*) is represented by a **prototype trajectory**:
+[
+P_f = (p_1, p_2, \dots, p_{L_f})
+]
+
+We compute an **alignment energy** using Dynamic Time Warping (DTW):
+[
+E_f = \mathrm{DTW}(X, P_f)
+]
+
+* Lower (E_f) means the observed behavior evolves similarly to the prototype.
+* Higher (E_f) means poor temporal alignment.
+* DTW allows stretching and compression in time, which is critical for real child behavior.
+
+This energy plays the role of a **negative log-likelihood**: smaller energy → more plausible explanation.
+
+---
+
+### Gibbs / Boltzmann weighting over explanations
+
+Instead of choosing the single lowest-energy explanation, we convert energies into a **probability distribution** using a Gibbs (Boltzmann) distribution:
+
+[
+P(f \mid X) =
+\frac{\exp(-E_f / T)}{\sum_{f'} \exp(-E_{f'} / T)}
+]
+
+Where:
+
+* (E_f) is the DTW alignment energy
+* (T > 0) is a **temperature** parameter
+
+#### Interpretation of temperature
+
+* **Low temperature** ((T \downarrow)):
+
+  * Strong preference for the minimum-energy explanation
+  * Sharper, more confident predictions
+  * Lower entropy
+
+* **High temperature** ((T \uparrow)):
+
+  * Energies are flattened
+  * Multiple explanations receive non-negligible probability
+  * Higher entropy → **greater acknowledged uncertainty**
+
+This matches caregiver reality: when evidence is weak or ambiguous, the system should *not* sound confident.
+
+---
+
+### Entropy as a measure of uncertainty
+
+The distribution (P(f \mid X)) has entropy:
+[
+H = -\sum_f P(f \mid X)\log P(f \mid X)
+]
+
+* High entropy → “many explanations plausible”
+* Low entropy → “one explanation dominates”
+
+Temperature calibration explicitly controls this behavior.
+
+---
+
+### Landau-style barrier for emotional instability
+
+Some situations involve **state instability** rather than a stable latent cause (e.g., a child close to meltdown).
+
+We model this using a **Landau-style potential** over an abstract emotional order parameter (m):
+
+[
+V(m) = a m^2 + b m^4
+]
+
+* Two shallow minima → competing emotional states
+* A small perturbation can flip the system
+
+From this, we estimate:
+
+* **Barrier height** (how stable the current state is)
+* **Flip probability** using a Glauber-type dynamics:
+  [
+  P_{\text{flip}} \approx \exp(-\Delta V / T)
+  ]
+
+Where:
+
+* (\Delta V) is the energy barrier between states
+* (T) again represents environmental or internal uncertainty
+
+This provides a *qualitative* signal such as:
+
+> “risk(meltdown-ish) ≈ 0.51, flip ≈ 0.65”
+
+These values are **not diagnoses**, but warnings that the system is near an unstable region.
+
+---
+
+### Why this matters for caregiver-facing AI
+
+* Physics-style inference avoids brittle hard labels
+* Uncertainty is **explicit**, not hidden
+* Explanations can say:
+
+  > “Several explanations are plausible; this one is slightly more consistent”
+
+This is ethically preferable to overconfident classification when interpreting vulnerable populations.
+
+---
+
+### Calibration as temperature learning
+
+The calibration step learns:
+
+* video temperature (T_v)
+* audio temperature (T_a)
+* fusion weights (\alpha_v, \alpha_a, \alpha_t)
+
+by minimizing prediction loss over known prototype associations.
+
+This aligns numerical confidence with observed reliability.
+
+---
+
+### Summary intuition
+
+| Physics concept  | Interpretation in this system                      |
+| ---------------- | -------------------------------------------------- |
+| Energy           | Temporal mismatch between behavior and explanation |
+| Temperature      | Willingness to admit uncertainty                   |
+| Entropy          | How ambiguous the situation is                     |
+| Barrier height   | Emotional stability                                |
+| Flip probability | Risk of sudden state change                        |
+
+---
