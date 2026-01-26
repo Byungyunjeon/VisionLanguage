@@ -12,6 +12,37 @@ from src.dtw_align import energies_against_library  # :contentReference[oaicite:
 from src.text_prior import best_text_prior  # :contentReference[oaicite:11]{index=11}
 from src.narrate import aggregate_function_scores, pick_top_function, render_parent_narration  # :contentReference[oaicite:12]{index=12}
 
+import threading
+import time
+
+def _ts():
+    return time.strftime("%H:%M:%S")
+
+def log(msg: str):
+    print(f"[{_ts()}] {msg}", flush=True)
+
+def run_with_heartbeat(fn, label="working", every=2.0, *args, **kwargs):
+    done = False
+    result = None
+    exc = None
+
+    def worker():
+        nonlocal done, result, exc
+        try:
+            result = fn(*args, **kwargs)
+        except Exception as e:
+            exc = e
+        done = True
+
+    t = threading.Thread(target=worker, daemon=True)
+    t.start()
+    while not done:
+        log(f"{label} ...")
+        time.sleep(every)
+
+    if exc is not None:
+        raise exc
+    return result
 
 def softmax_neg_energy(E: np.ndarray, tau: float = 1.0) -> np.ndarray:
     """
@@ -92,7 +123,9 @@ def main():
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
 
     # 1) Extract emotion/state sequences (same perception as Step1)
-    v_seq = extract_video_emotions_per_sec(args.video, dt=1.0)  # :contentReference[oaicite:14]{index=14}
+#    v_seq = extract_video_emotions_per_sec(args.video, dt=1.0)  # :contentReference[oaicite:14]{index=14}
+    v_seq = run_with_heartbeat(extract_video_emotions_per_sec, "Extracting video emotions (still running)", 2.0, args.video, 1.0)
+
     a_seq = extract_audio_states_per_sec(args.video, dt=1.0)    # :contentReference[oaicite:15]{index=15}
 
     # 2) Load prototype libraries (JSON -> object -> PrototypeLibrary)

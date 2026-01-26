@@ -3,6 +3,37 @@ import argparse
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple
+import threading
+import time
+
+def _ts():
+    return time.strftime("%H:%M:%S")
+
+def log(msg: str):
+    print(f"[{_ts()}] {msg}", flush=True)
+
+def run_with_heartbeat(fn, label="working", every=2.0, *args, **kwargs):
+    done = False
+    result = None
+    exc = None
+
+    def worker():
+        nonlocal done, result, exc
+        try:
+            result = fn(*args, **kwargs)
+        except Exception as e:
+            exc = e
+        done = True
+
+    t = threading.Thread(target=worker, daemon=True)
+    t.start()
+    while not done:
+        log(f"{label} ...")
+        time.sleep(every)
+
+    if exc is not None:
+        raise exc
+    return result
 
 # Reuse your Step1 feature extractors
 from src.video_emotion import extract_video_emotions_per_sec
@@ -83,7 +114,8 @@ def main():
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
 
     # 1) Extract per-second facial emotion distributions
-    video_seq = extract_video_emotions_per_sec(args.video, dt=1.0)
+#    video_seq = extract_video_emotions_per_sec(args.video, dt=1.0)
+    video_seq = run_with_heartbeat(extract_video_emotions_per_sec, "Extracting video emotions (still running)", 2.0, args.video, 1.0)
     pooled = mean_dicts(video_seq)
     pooled = normalize(pooled)
 
